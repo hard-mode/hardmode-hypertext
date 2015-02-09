@@ -1,0 +1,22 @@
+doctype html
+
+html
+
+  head
+    title= title
+    link(rel='stylesheet', href='/style')
+
+  body
+    script(src='/script')
+
+    //-.radio
+      //-.radio-option.active Play
+      //-.radio-option Edit
+      //-.radio-option Code
+      //-.radio-option Key
+      //-.radio-option MIDI
+      //-.radio-option OSC
+
+    each script in init
+      pre= script
+      script(type='application/wisp')!= script
