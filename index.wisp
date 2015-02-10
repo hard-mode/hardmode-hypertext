@@ -4,5 +4,4 @@
 (defn start-server [port & body]
   (fn start-server! [context]
     (let [server (Server. context { :port port })]
-      (console.log server)
       (body.map (fn [member] (member context))))))

@@ -19,7 +19,8 @@ module.exports = function () {
 var Server = module.exports.Server = function (context, options) {
 
   this.title  = "Foo"; //context.config.info.name;
-  this.data   = context.data;
+  this.data   = context.data ||
+                require('redis').createClient(process.env.REDIS, "127.0.0.1", {});
   this.port   = options.port;
   this.init   = [];
   this.server = new hapi.Server();
