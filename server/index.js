@@ -18,8 +18,9 @@ module.exports = function () {
 
 var Server = module.exports.Server = function (context, options) {
 
-  this.title  = "Foo"; //context.config.info.name;
-  this.data   = context.data ||
+  this.title  = (context['session-info'] && context['session-info'].title)
+                ? context['session-info'].title : "Hardmode";
+  this.data   = context['redis-data'] ||
                 require('redis').createClient(process.env.REDIS, "127.0.0.1", {});
   this.port   = options.port;
   this.init   = [];
