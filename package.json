@@ -2,10 +2,14 @@
   "name": "hardmode-ui-hypertext",
   "version": "0.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index.wisp",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Adam Avramov <fallenblood@gmail.com>",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "hapi": "^8.2.0",
+    "jade": "^1.9.2"
+  }
 }

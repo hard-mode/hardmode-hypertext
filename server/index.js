@@ -18,7 +18,7 @@ module.exports = function () {
 
 var Server = module.exports.Server = function (context, options) {
 
-  this.title  = context.config.info.name;
+  this.title  = "Foo"; //context.config.info.name;
   this.data   = context.data;
   this.port   = options.port;
   this.init   = [];
@@ -54,7 +54,7 @@ Server.prototype = {
           console.log(this.port, this.title);
 
           reply(jade.renderFile(
-            path.join(__dirname, 'index.jade'),
+            path.join(__dirname, '..', 'assets', 'index.jade'),
             { port:  this.port
             , title: this.title
             , init:  this.init }));
@@ -107,3 +107,4 @@ Server.prototype = {
     ]
 
 };
+
