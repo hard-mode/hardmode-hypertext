@@ -1,15 +1,26 @@
-(ns hardmode.ui.hypertext
+(ns hardmode-ui-hypertext.server
   (:require
-    [path]
-    [mori                         :refer [assoc]]
-    [hardmode.ui.hypertext.server :refer [Server]]))
+    [hardmode-core.src.core
+      :refer [execute-body!]]
+    [http]
+    [mori
+      :refer [is-map assoc vector]]))
 
-(defn start-server [port & body]
-  (fn start-server! [context]
-    (let [redis-data (:redis-data context)
-          module-dir (path.dirname module.filename)
-          assets-dir (path.join module-dir "assets")
-          server     (Server. context { :port port })]
-      (redis-data.publish "watch" (path.join assets-dir "**" "*"))
-      (body.map (fn [member]
-        (member (assoc context :http server)))))))
+(defn input [] (fn []))
+
+(defn list-view [] (fn []))
+
+(defn page [options & body]
+  (fn [context]
+    (console.log options context (is-map context) (mori.get context "routes"))))
+
+(defn listener [request response])
+
+(defn server [port & body]
+  (fn [context]
+    (let [server  (http.createServer listener)
+          context (assoc context :server server
+                                 :routes (vector))]
+      (console.log "Listening on" port)
+      (server.listen port)
+      (apply execute-body! context body))))

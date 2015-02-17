@@ -9,7 +9,6 @@
   "author": "Adam Avramov <fallenblood@gmail.com>",
   "license": "ISC",
   "dependencies": {
-    "hapi": "^8.2.0",
     "jade": "^1.9.2"
   }
 }
