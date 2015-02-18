@@ -6,6 +6,8 @@
     [hardmode-core.src.core
                      :refer [execute-body!]]
     [http]
+    [jade]
+    [path]
     [send-data.html  :as send-html]
     [send-data.error :as send-error]))
 
@@ -13,23 +15,28 @@
 
 (defn list-view [] (fn []))
 
+(defn add-route [context new-route]
+  (let [routes (mori.get context "routes")]
+
+    ; assertions
+    (assert routes (str "routes is missing from context; "
+                        "(page) called outside (server)?"))
+    (assert (is-vector routes) "routes is not a vector?!")
+
+    ; return context with added route
+    (assoc context :routes (conj routes new-route))))
+
 (defn page [options & body]
   (fn [context]
-    (let [routes (mori.get context "routes")]
-
-      ; assertions
-      (assert routes (str "routes is missing from context; "
-                          "(page) called outside (server)?"))
-      (assert (is-vector routes) "routes is not a vector?!")
-
-      ; add new route to context
-      (let [handler   (fn [request response]
-                        (send-html request response
-                          { "body" "Foo" }))
-            new-route (hash-map :pattern  options.pattern 
-                                :template options.template
-                                :handler  handler)]
-        (assoc context :routes (conj routes new-route))))))
+    (add-route context (hash-map
+      :pattern  options.pattern
+      :template options.template
+      :handler
+      (fn [request response]
+        (send-html request response
+          { "body" (jade.renderFile
+            (path.join __dirname "assets" "index.jade")
+            {} ) }))))))
 
 (defn get-request-handler [context]
   (fn request-handler [request response]
