@@ -7,10 +7,9 @@
     [hardmode-core.src.core
       :refer [assert]]))
 
-(defn route [pattern template handler]
-  (hash-map :pattern  pattern
-            :template template
-            :handler  handler))
+(defn route [pattern handler]
+  (hash-map :pattern pattern
+            :handler handler))
 
 (defn add-route [context new-route]
   (let [routes (mori.get context "routes")]

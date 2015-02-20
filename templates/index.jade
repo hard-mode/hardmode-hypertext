@@ -9,6 +9,10 @@ html
   body
     script(src='/script')
 
+    each widget in widgets
+      = widget
+
     //-each script in init
       //-pre= script
       //-script(type='application/wisp')!= script
+
