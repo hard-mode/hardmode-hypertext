@@ -39,15 +39,16 @@
 
 (defn page [options & body]
   (fn [context]
-    (let [widgets (render-widgets body)]
-      (add-route context (route
-        options.pattern
-        (fn [request response]
+    (add-route context (route
+      options.pattern
+      (fn [request response]
+        (let [widgets (to-js (render-widgets body))]
           (console.log widgets)
           (send-html request response
             { "body"
               (render-template "templates/index.jade"
-                { "widgets" (to-js widgets) }) } ) ) ) ) ) ) ) 
+                { "body" (render-template (:template options)
+                  { "widgets" widgets }) }) } ) ) ) ) ) ) ) 
 
 (defn input [id options]
   { :id       id

@@ -7,10 +7,8 @@ html
     link(rel='stylesheet', href='/style')
 
   body
+    != body
     script(src='/script')
-
-    each widget in widgets
-      = widget
 
     //-each script in init
       //-pre= script
