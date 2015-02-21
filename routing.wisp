@@ -2,6 +2,8 @@
   (:require
     [wisp.runtime
       :refer [=]]
+    [wisp.sequence
+      :refer [reduce]]
     [mori
       :refer [hash-map assoc vector is-vector conj]]
     [hardmode-core.src.core
@@ -12,12 +14,9 @@
             :handler handler))
 
 (defn add-route [context new-route]
-  (let [routes (mori.get context "routes")]
-
-    ; assertions
-    (assert routes (str "routes is missing from context; "
-                        "(page) called outside (server)?"))
-    (assert (is-vector routes) "routes is not a vector?!")
-
-    ; return context with added route
+  (let [routes (or (mori.get context "routes") (vector))]
     (assoc context :routes (conj routes new-route))))
+
+(defn add-routes [context & routes]
+  (reduce (fn [context route] (add-route context route))
+    context routes))

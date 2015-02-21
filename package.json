@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "jade": "^1.9.2",
+    "reflux": "^0.2.5",
     "send-data": "^6.0.0"
   }
 }

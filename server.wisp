@@ -2,13 +2,18 @@
   (:require
     [hardmode-core.src.core
       :refer [execute-body!]]
+    [hardmode-ui-hypertext.routing
+      :refer [route add-routes]]
     [http]
     [mori
       :refer [hash-map assoc vector first filter]]
     [send-data.error
       :as send-error]
+    [send-data]
     [wisp.runtime
-      :refer [=]]))
+      :refer [=]
+    [wisp.sequence
+      :refer [reduce]] ]))
 
 (defn get-request-handler [context]
   (fn request-handler [request response]
@@ -20,13 +25,20 @@
         ((mori.get route "handler") request response)
         (send-error request response { "body" (Error. "404") })))))
 
-(defn server [port & body]
+(defn server-core [port & body]
   (fn [context]
     (let [server  (http.createServer)
-          context (assoc context :server server
-                                 :routes (vector))]
+          context (assoc context :server server)]
       (console.log "Listening on" port)
       (server.listen port)
       (let [new-context (apply execute-body! context body)]
         (server.on "request" (get-request-handler new-context))
         new-context))))
+
+(defn server-ui [port & body]
+  (fn [context]
+    ((apply server-core port body) (add-routes context
+      (route "/style"  (fn [request response]
+        (send-data request response "body { background: #333; color: #fff }"))
+      (route "/script" (fn [request response]
+        (send-data request response "alert('foo')"))))))))
