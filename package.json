@@ -9,8 +9,13 @@
   "author": "Adam Avramov <fallenblood@gmail.com>",
   "license": "ISC",
   "dependencies": {
+    "browserify": "^8.1.3",
+    "insert-css": "^0.2.0",
     "jade": "^1.9.2",
+    "jadeify": "^4.0.1",
     "reflux": "^0.2.5",
-    "send-data": "^6.0.0"
+    "send-data": "^6.0.0",
+    "stylify": "^1.1.2",
+    "wispify": "^0.2.0"
   }
 }

@@ -4,9 +4,11 @@
       :refer [execute-body!]]
     [hardmode-ui-hypertext.routing
       :refer [route add-routes]]
+    [browserify]
     [http]
     [mori
       :refer [hash-map assoc vector first filter]]
+    [path]
     [send-data.error
       :as send-error]
     [send-data]
@@ -39,6 +41,12 @@
   (fn [context]
     ((apply server-core port body) (add-routes context
       (route "/style"  (fn [request response]
-        (send-data request response "body { background: #333; color: #fff }"))
+        (send-data request response "body { background: #333; color: #fff }")))
       (route "/script" (fn [request response]
-        (send-data request response "alert('foo')"))))))))
+        (let [br    (browserify)
+              wisp  (path.resolve (path.join
+                      (path.dirname (require.resolve "wisp")) "engine" "browser.js"))]
+          (br.add wisp)
+          (br.bundle (fn [error bundled]
+            (if error (throw error))
+            (send-data request response (bundled.toString "utf8")))))))))))
