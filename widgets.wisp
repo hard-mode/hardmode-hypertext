@@ -29,12 +29,12 @@
 (defn render-template [template context]
   (jade.renderFile (find-template template) context))
 
-(defn render-widgets [widgets]
+(defn render-widgets [context widgets]
   (reduce
     (fn [rendered widget]
-      (assoc rendered (:id widget)
-        (render-template (:template widget)
-                         (:options  widget))))
+      (assoc rendered (mori.get widget "id")
+        (render-template (mori.get widget "template")
+                         (mori.get widget "options"))))
     (hash-map) widgets))
 
 (defn page [options & body]
@@ -42,20 +42,22 @@
     (add-route context (route
       options.pattern
       (fn [request response]
-        (let [widgets (to-js (render-widgets body))]
-          (console.log widgets)
-          (send-html request response
-            { "body"
-              (render-template "templates/index.jade"
-                { "body" (render-template (:template options)
-                  { "widgets" widgets }) }) } ) ) ) ) ) ) ) 
+        (let [widgets   (to-js (render-widgets context body))
+              template1 "templates/index.jade"
+              template2 (:template options)
+              data      { "body" (render-template template1
+                          { "body" (render-template template2
+                            { "widgets" widgets }) }) }]
+          (send-html request response data)))))))
+
+(defn widget [template id options]
+  (hash-map
+    :id       id
+    :template template
+    :options  options))
 
 (defn input [id options]
-  { :id       id
-    :template "templates/input.jade"
-    :options  options } )
+  (widget "templates/input.jade" id options))
 
 (defn list-view [id options]
-  { :id       id
-    :template "templates/list.jade"
-    :options  options } )
+  (widget "templates/list.jade"  id options))
