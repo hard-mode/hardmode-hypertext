@@ -40,13 +40,15 @@
 (defn server-ui [port & body]
   (fn [context]
     ((apply server-core port body) (add-routes context
+
       (route "/style"  (fn [request response]
         (send-data request response "body { background: #333; color: #fff }")))
+
       (route "/script" (fn [request response]
-        (let [br    (browserify)
-              wisp  (path.resolve (path.join
-                      (path.dirname (require.resolve "wisp")) "engine" "browser.js"))]
-          (br.add wisp)
+        (let [br (browserify)]
+          (br.add (path.resolve (path.join
+            (path.dirname (require.resolve "wisp")) "engine" "browser.js")))
+          (br.require (require.resolve "reflux"))
           (br.bundle (fn [error bundled]
             (if error (throw error))
             (send-data request response (bundled.toString "utf8")))))))))))
