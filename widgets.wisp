@@ -37,18 +37,16 @@
                          (mori.get widget "options"))))
     (hash-map) widgets))
 
+(defn extract-templates [widgets]
+  (reduce
+    (fn [templates widget]
+      (mori.conj templates (mori.get widget "template")))
+    (mori.set) widgets))
+
 (defn page [options & body]
   (fn [context]
-    (add-route context (route
-      options.pattern
-      (fn [request response]
-        (let [widgets   (to-js (render-widgets context body))
-              template1 "templates/index.jade"
-              template2 (:template options)
-              data      { "body" (render-template template1
-                          { "body" (render-template template2
-                            { "widgets" widgets }) }) }]
-          (send-html request response data)))))))
+    (add-route context (route options.pattern (fn [request response]
+      (send-html request response (render-template "templates/index.jade")))))))
 
 (defn widget [template id options]
   (hash-map

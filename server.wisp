@@ -1,21 +1,16 @@
 (ns hardmode-ui-hypertext.server
   (:require
-    [hardmode-core.src.core
-      :refer [execute-body!]]
-    [hardmode-ui-hypertext.routing
-      :refer [route add-routes]]
+    [hardmode-core.src.core        :refer [execute-body!]]
+    [hardmode-ui-hypertext.routing :refer [route add-routes]]
+    [hardmode-ui-hypertext.widgets :refer [find-template]]
     [browserify]
     [http]
-    [mori
-      :refer [hash-map assoc vector first filter]]
+    [mori            :refer [hash-map assoc vector first filter]]
     [path]
-    [send-data.error
-      :as send-error]
+    [send-data.error :as send-error]
     [send-data]
-    [wisp.runtime
-      :refer [=]
-    [wisp.sequence
-      :refer [reduce]] ]))
+    [wisp.runtime    :refer [=]]
+    [wisp.sequence   :refer [reduce]] ))
 
 (defn get-request-handler [context]
   (fn request-handler [request response]
@@ -39,16 +34,22 @@
 
 (defn server-ui [port & body]
   (fn [context]
-    ((apply server-core port body) (add-routes context
+    (let [br  (browserify)
+          ctx (reduce (fn [acc member] (member acc)) (hash-map) body)]
 
-      (route "/style"  (fn [request response]
-        (send-data request response "body { background: #333; color: #fff }")))
+      (br.add (path.resolve (path.join
+        (path.dirname (require.resolve "wisp")) "engine" "browser.js")))
+      (br.require (require.resolve "reflux"))
+      (br.transform (require "jadeify"))
+      (mori.each (mori.get ctx "templates")
+        (fn [template] (br.require (find-template template))))
 
-      (route "/script" (fn [request response]
-        (let [br (browserify)]
-          (br.add (path.resolve (path.join
-            (path.dirname (require.resolve "wisp")) "engine" "browser.js")))
-          (br.require (require.resolve "reflux"))
+      ((apply server-core port body) (add-routes context
+
+        (route "/style"  (fn [request response]
+          (send-data request response "body { background: #333; color: #fff }")))
+
+        (route "/script" (fn [request response]
           (br.bundle (fn [error bundled]
             (if error (throw error))
             (send-data request response (bundled.toString "utf8")))))))))))

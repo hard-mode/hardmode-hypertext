@@ -19,7 +19,7 @@ var MODULE_EXPORTS         =
     , id:   { type: "Identifier", name: "jade_mixins" }
     , init: MODULE_EXPORTS_STMT }
 
-  , BUF_PUSH = function(node){
+  , BUF_PUSH               = function(node){
 
       function bufPush (node) {
         if (node.type                          === 'ExpressionStatement' &&
