@@ -1,13 +1,9 @@
 (ns hardmode-ui-hypertext.routing
   (:require
-    [wisp.runtime
-      :refer [=]]
-    [wisp.sequence
-      :refer [reduce]]
-    [mori
-      :refer [hash-map assoc vector is-vector conj]]
-    [hardmode-core.src.core
-      :refer [assert]]))
+    [hardmode-core.src.core :refer [assert]]
+    [wisp.runtime           :refer [=]]
+    [wisp.sequence          :refer [reduce]]
+    [mori                   :refer [hash-map assoc vector is-vector conj]]))
 
 (defn route [pattern handler]
   (hash-map :pattern pattern

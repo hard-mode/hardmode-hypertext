@@ -1,8 +1,8 @@
 (ns hardmode-ui-hypertext.server
   (:require
-    [hardmode-core.src.core        :refer [execute-body!]]
-    [hardmode-ui-hypertext.routing :refer [route add-routes]]
-    [hardmode-ui-hypertext.widgets :refer [find-template]]
+    [hardmode-core.src.core         :refer [execute-body!]]
+    [hardmode-ui-hypertext.routing  :refer [route add-routes]]
+    [hardmode-ui-hypertext.template :as    template]
     [browserify]
     [http]
     [mori            :refer [hash-map assoc vector first filter]]
@@ -44,7 +44,7 @@
       (br.transform (require "jadeify"))
       (br.transform (require "wispify"))
       (mori.each (mori.get ctx "templates")
-        (fn [template] (br.require (find-template template))))
+        (fn [template] (br.require (template.resolve template))))
 
       ((apply server-core port body) (add-routes context
 

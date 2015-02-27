@@ -1,7 +1,9 @@
 (ns hardmode-ui-hypertext.widgets.page
   (:require
-    [hardmode-ui-hypertext.server :refer [route add-route]]
-    [send-data.html               :as send-html]))
+    [hardmode-ui-hypertext.routing  :refer [route add-route]]
+    [hardmode-ui-hypertext.template :as template]
+    [mori]
+    [send-data.html                 :as send-html]))
 
 (defn page [options & body]
   (fn [context]
