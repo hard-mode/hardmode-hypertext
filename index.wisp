@@ -2,13 +2,14 @@
   (:require
     [hardmode-ui-hypertext.server  :as server]
     [hardmode-ui-hypertext.routing :as routing]
-    [hardmode-ui-hypertext.widgets :as widgets]))
+    [hardmode-ui-hypertext.widget  :as widget]))
 
 (def route      routing.route)
 (def add-routes routing.add-routes)
 
-(def page       widgets.page)
-(def list-view  widgets.list-view)
-(def input      widgets.input)
+(def page       widget.page)
+(def list-view  widget.list-view)
+(def input      widget.input)
 
 (def server     server.server-ui)
+

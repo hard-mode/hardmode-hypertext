@@ -8,8 +8,16 @@ html
     meta(charset='utf-8')
 
   body
-    != body
     script(src='/script')
+
+    script(type='application/wisp')
+      | (init-widgets {
+      each member in body
+        | "!{mori.get(member, 'id')}"
+        | {
+        | "template" "!{mori.get(member, 'template')}"
+        | }!{"\n"} 
+      | })
 
     //-each script in init
       //-pre= script

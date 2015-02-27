@@ -40,7 +40,9 @@
       (br.add (path.resolve (path.join
         (path.dirname (require.resolve "wisp")) "engine" "browser.js")))
       (br.require (require.resolve "reflux"))
+      (br.add (require.resolve "./client.wisp"))
       (br.transform (require "jadeify"))
+      (br.transform (require "wispify"))
       (mori.each (mori.get ctx "templates")
         (fn [template] (br.require (find-template template))))
 
