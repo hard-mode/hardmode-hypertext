@@ -11,13 +11,14 @@ html
     script(src='/script')
 
     script(type='application/wisp')
-      | (init-widgets {
+      | (let [client (require 1)]
+      | (client.init-widgets {
       each member in body
         | "!{mori.get(member, 'id')}"
         | {
         | "template" "!{mori.get(member, 'template')}"
         | }!{"\n"} 
-      | })
+      | }))
 
     //-each script in init
       //-pre= script
