@@ -34,17 +34,14 @@
 
 (defn server-ui [port & body]
   (fn [context]
-    (let [br  (browserify)
-          ctx (reduce (fn [acc member] (member acc)) (hash-map) body)]
+    (let [br      (browserify)
+          context (assoc context :browserify br)]
+
 
       (br.add (path.resolve (path.join
         (path.dirname (require.resolve "wisp")) "engine" "browser.js")))
       (br.require (require.resolve "reflux"))
       (br.require (require.resolve "./client.wisp") { :expose "client" })
-      (br.transform (require "jadeify"))
-      (br.transform (require "wispify"))
-      (mori.each (mori.get ctx "templates")
-        (fn [template] (br.require (template.resolve template))))
 
       ((apply server-core port body) (add-routes context
 
@@ -52,6 +49,8 @@
           (send-data request response "body { background: #333; color: #fff }")))
 
         (route "/script" (fn [request response]
+          (br.transform (require "jadeify"))
+          (br.transform (require "wispify"))
           (br.bundle (fn [error bundled]
             (if error (throw error))
             (send-data request response (bundled.toString "utf8")))))))))))

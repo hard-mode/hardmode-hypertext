@@ -2,8 +2,9 @@
   (:require
     [fs]
     [jade]
+    [mori]
     [path]
-    [wisp.runtime :refer [=]]))
+    [wisp.runtime  :refer [=]]))
 
 (defn path-absolute [p]
   (= (path.resolve p) (path.normalize p)))
@@ -19,3 +20,8 @@
 
 (defn render [template context]
   (jade.renderFile (resolve template) context))
+
+(defn extract [body]
+  (mori.reduce
+    (fn [templates member] (mori.conj templates (mori.get member "template")))
+    (mori.vector) body))
