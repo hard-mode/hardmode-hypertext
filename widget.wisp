@@ -17,3 +17,6 @@
     (assoc context
       :widgets   (assoc widgets (wid "id") widget)
       :templates (conj templates (wid "template")))))
+
+(defn add-widgets [context & widgets]
+  (reduce add-widget context widgets))

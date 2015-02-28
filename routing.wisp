@@ -14,5 +14,4 @@
     (assoc context :routes (conj routes new-route))))
 
 (defn add-routes [context & routes]
-  (reduce (fn [context route] (add-route context route))
-    context routes))
+  (reduce add-route context routes))

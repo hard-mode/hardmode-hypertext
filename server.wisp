@@ -9,13 +9,15 @@
     [path]
     [send-data.error :as send-error]
     [send-data]
+    [url]
     [wisp.runtime    :refer [=]]
     [wisp.sequence   :refer [reduce]] ))
 
 (defn get-request-handler [context]
   (fn request-handler [request response]
     (let [routes (mori.get context "routes")
-          match  (fn [route] (= request.url (mori.get route "pattern")))
+          url    (aget (url.parse request.url) "pathname")
+          match  (fn [route] (= url (mori.get route "pattern")))
           route  (first (filter match routes))]
       (console.log "Requested" request.url)
       (if route
