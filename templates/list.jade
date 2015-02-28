@@ -1,4 +1,5 @@
-div(id='container_'+id)
-  ol
-    each track in values
-      li= track
+mixin List
+  div(id='container_'+id)
+    ol
+      each track in values
+        li= track

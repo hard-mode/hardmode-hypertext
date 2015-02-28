@@ -1,5 +1,6 @@
 (ns hardmode-ui-hypertext.template
   (:require
+    [blade]
     [fs]
     [jade]
     [mori]
@@ -18,8 +19,8 @@
             (throw (Error. (str "Could not find template "
                                 template)))))))))
 
-(defn render [template context]
-  (jade.renderFile (resolve template) context))
+(defn render [template options callback]
+  (blade.renderFile (resolve template) options callback))
 
 (defn extract [body]
   (mori.reduce
