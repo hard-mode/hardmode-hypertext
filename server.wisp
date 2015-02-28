@@ -34,14 +34,19 @@
 
 (defn server-ui [port & body]
   (fn [context]
-    (let [br      (browserify)
-          context (assoc context :browserify br)]
-
+    (let [br            (browserify)
+          context       (assoc context :browserify br)
+          wispify       (require "wispify")
+          jadeify       (require "jadeify")
+          transformJade (require "./transform_jade.js")]
 
       (br.add (path.resolve (path.join
         (path.dirname (require.resolve "wisp")) "engine" "browser.js")))
       (br.require (require.resolve "reflux"))
       (br.require (require.resolve "./client.wisp") { :expose "client" })
+      (br.transform wispify)
+      (br.transform jadeify { :compiler transformJade.DynamicMixinsCompiler})
+      (br.transform transformJade)
 
       ((apply server-core port body) (add-routes context
 
@@ -49,8 +54,6 @@
           (send-data request response "body { background: #333; color: #fff }")))
 
         (route "/script" (fn [request response]
-          (br.transform (require "jadeify"))
-          (br.transform (require "wispify"))
           (br.bundle (fn [error bundled]
             (if error (throw error))
             (send-data request response (bundled.toString "utf8")))))))))))

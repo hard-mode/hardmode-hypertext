@@ -1,7 +1,9 @@
 var esprima   = require('esprima')   // transform jade
   , escodegen = require('escodegen') // jade transform
+  , jade      = require('jade')      // html shorthand
   , path      = require('path')      // path operation
   , through   = require('through')   // stream utility
+  , util      = require('util')      // inheritance yo
 
 
 var MODULE_EXPORTS         =
@@ -31,10 +33,10 @@ var MODULE_EXPORTS         =
           node.expression =
           { type:   "CallExpression"
           , callee:
-            { type:     "MemberExpression",
-            , computed: false,
+            { type:     "MemberExpression"
+            , computed: false
             , object:   { type: "Identifier", name: "buf"  }
-            , property: { type: "Identifier", name: "push" } },
+            , property: { type: "Identifier", name: "push" } }
           , arguments: [node.expression] };
 
           return node;
@@ -148,3 +150,10 @@ module.exports = function transformJade (file) {
     this.queue(null);
   }
 }
+
+
+module.exports.DynamicMixinsCompiler = function DynamicMixinsCompiler () {
+  jade.Compiler.apply(this, arguments);
+  this.dynamicMixins = true;
+}
+util.inherits(module.exports.DynamicMixinsCompiler, jade.Compiler);

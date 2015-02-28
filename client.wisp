@@ -4,6 +4,7 @@
 (defn init-widget! [widget]
   (let [container (document.createElement "div")]
     (set! (aget container "id") (:id widget))
+    (console.log (require (:template widget)))
     (document.body.appendChild container)))
 
 (defn init-widgets! [& widgets]
