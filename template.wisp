@@ -21,8 +21,3 @@
 
 (defn render [template options callback]
   (blade.renderFile (resolve template) options callback))
-
-(defn extract [body]
-  (mori.reduce
-    (fn [templates member] (mori.conj templates (mori.get member "template")))
-    (mori.vector) body))

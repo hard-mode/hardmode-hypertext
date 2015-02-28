@@ -2,12 +2,13 @@
   (:require
     [hardmode-ui-hypertext.routing  :refer [route add-route]]
     [hardmode-ui-hypertext.template :as template]
-    [mori                           :refer [assoc each]]
+    [hardmode-ui-hypertext.widget   :refer [add-widget]]
+    [mori                           :refer [assoc each reduce]]
     [send-data.html                 :as send-html]))
 
 (defn page [options & body]
   (fn [context]
-    (let [context   (assoc context :templates (template.extract body))
+    (let [context   (reduce add-widget context body)
           templates (mori.get context "templates")
           br        (mori.get context "browserify")]
       (each templates (fn [t]
