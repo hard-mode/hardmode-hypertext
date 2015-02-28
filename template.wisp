@@ -2,7 +2,8 @@
   (:require
     [fs]
     [jade]
-    [path]))
+    [path]
+    [wisp.runtime :refer [=]]))
 
 (defn path-absolute [p]
   (= (path.resolve p) (path.normalize p)))
