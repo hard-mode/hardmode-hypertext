@@ -3,4 +3,4 @@
     [hardmode-ui-hypertext.widget :refer [widget]]))
 
 (defn list-view [id options]
-  (widget "templates/list.jade"  id options))
+  (widget "templates/list.blade"  id options))

@@ -37,16 +37,14 @@
     (let [br            (browserify)
           context       (assoc context :browserify br)
           wispify       (require "wispify")
-          jadeify       (require "jadeify")
-          transformJade (require "./transform_jade.js")]
+          bladeify      (require "./bladeify.js")]
 
       (br.add (path.resolve (path.join
         (path.dirname (require.resolve "wisp")) "engine" "browser.js")))
       (br.require (require.resolve "reflux"))
       (br.require (require.resolve "./client.wisp") { :expose "client" })
       (br.transform wispify)
-      (br.transform jadeify { :compiler transformJade.DynamicMixinsCompiler})
-      (br.transform transformJade)
+      (br.transform bladeify)
 
       ((apply server-core port body) (add-routes context
 

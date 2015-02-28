@@ -3,4 +3,4 @@
     [hardmode-ui-hypertext.widget :refer [widget]]))
 
 (defn input [id options]
-  (widget "templates/input.jade" id options))
+  (widget "templates/input.blade" id options))

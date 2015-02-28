@@ -14,7 +14,7 @@
         (br.require (template.resolve t) { :expose t })))
       (add-route context (route options.pattern (fn [request response]
         (template.render
-          "templates/index.jade"
+          "templates/index.blade"
           { "body" body
             "mori" mori }
           (fn [err html]

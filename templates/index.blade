@@ -8,16 +8,17 @@ html
     meta(charset='utf-8')
 
   body
+    script(src='https://cdn.rawgit.com/bminer/node-blade/master/lib/runtime.js')
     script(src='/script')
 
     script(type='application/wisp')
-      |
+      |!
       |!
         (let [client (require "client")]
           (client.init-widgets!
       - for (var i in body)
         - var member = body[i]
-        |
+        |!
         |!     { :id       "!{mori.get(member, 'id')}"
         |!       :template "!{mori.get(member, 'template')}" }
       | ))
