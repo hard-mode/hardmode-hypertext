@@ -11,7 +11,7 @@ html
     script(src='/script')
 
     script(type='application/wisp')
-      | (let [client (require 1)]
+      | (let [client (require "client")]
       | (client.init-widgets {
       each member in body
         | "!{mori.get(member, 'id')}"
