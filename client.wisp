@@ -1,4 +1,5 @@
-(ns hardmode-ui-hypertext.client)
+(ns hardmode-ui-hypertext.client
+  (:require [insert-css]))
 
 (set! window.HARDMODE         (or window.HARDMODE         {}))
 (set! window.HARDMODE.widgets (or window.HARDMODE.widgets {}))
@@ -15,11 +16,18 @@
 
 (defn init-widget! [widget-opts callback]
   (let [container (document.createElement "div")
-        template  (require (:template widget-opts))]
-    (template widget-opts (fn [err html]
-      (if err (throw err))
-      (set! (aget container "id") (:id widget-opts))
-      (set! (aget container "innerHTML") html)
-      (callback container)))
+        template  (if (:template widget-opts) (require (:template widget-opts)))
+        style     (if (:style    widget-opts) (require (:style    widget-opts)))]
+
+    (if style (insert-css style))
+
+    (if template
+      (template widget-opts (fn [err html]
+        (if err (throw err))
+        (set! (aget container "id") (:id widget-opts))
+        (set! (aget container "innerHTML") html)
+        (callback container))))
+
     (set! (aget widget-opts "container") container)
+
     widget-opts))

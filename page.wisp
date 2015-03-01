@@ -46,6 +46,7 @@
     (br.require (require.resolve "./client.wisp")
       { :expose "client" })
     (br.transform (require "wispify"))
+    (br.transform (require "stylify"))
     (br.transform (require "./bladeify.js"))
 
     (add-routes context
