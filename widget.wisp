@@ -16,19 +16,13 @@
       :options  (to-clj options))))
 
 (defn add-widget [context widget]
-  (let [ctx     (partial mori.get context)
-        br      (ctx "browserify")
-        widgets (or (ctx "widgets") (hash-map))
-
-        w              (partial mori.get widget)
-        w-template     (w "template")
-        w-script       (w "script")
-        w-script-alias (str "widgets/" (w "name") ".wisp")]
-
-    (br.require (template.resolve w-template) { :expose w-template })
-    (br.require w-script                      { :expose w-script-alias })
-
-    (assoc context :widgets (assoc widgets (w "id") widget))))
+  (let [c  (partial mori.get context)
+        w  (partial mori.get widget)
+        br (c "browserify")]
+    (br.require (w "template"))
+    (br.require (w "script"))
+    (assoc context :widgets
+      (assoc (or (c "widgets") (hash-map)) (w "id") widget))))
 
 (defn add-widgets [context & widgets]
   (reduce add-widget context widgets))
