@@ -6,7 +6,7 @@
       (if script
         (do (console.log script) (script widget-opts))
         (init-widget! widget-opts
-          (fn [elements] (console.log elements)))))))))
+          (fn [element] (document.body.appendChild element)))))))))
 
 (defn init-widget! [widget-opts callback]
   (let [container (document.createElement "div")

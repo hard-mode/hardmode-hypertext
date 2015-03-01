@@ -1,6 +1,5 @@
-(ns hardmode-ui-hypertext.widgets.list-view.client)
+(ns hardmode-ui-hypertext.widgets.list-view.client
+  (:require [client :refer [init-widget!]]))
 
-(defn init-list-view [widget-opts] widget-opts)
-
-(set! module.exports init-list-view)
+(set! module.exports false)
 
