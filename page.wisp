@@ -43,7 +43,8 @@
 
     (br.add (path.resolve (path.join
       (path.dirname (require.resolve "wisp")) "engine" "browser.js")))
-    (br.require (require.resolve "./client.wisp") { :expose "client" })
+    (br.require (require.resolve "./client.wisp")
+      { :expose "hardmode-ui-hypertext/client" })
     (br.transform (require "wispify"))
     (br.transform (require "./bladeify.js"))
 
