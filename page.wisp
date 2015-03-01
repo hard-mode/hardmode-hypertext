@@ -18,38 +18,38 @@
 
 (defn respond-page [request response body]
   (template.render
-    "templates/index.blade"
+    "index.blade"
     { "body" body
       "mori" mori }
     (fn [err html]
       (if err (throw err))
       (send-html request response html))))
 
+(defn serve-page [context body]
+  (fn [request response]
+    (let [method    request.method
+          parsed    (url.parse request.url true) ; parse query string too
+          url-path  parsed.path
+          url-query parsed.query
+          widget-id (aget url-query "widget")]
+      (if widget-id
+        (respond-widget request response context widget-id)
+        (respond-page   request response body)))))
+
 (defn page [options & body] (fn [context]
-  (let [context   (reduce add-widget context body)
-        templates (mori.get context "templates")
-        br        (browserify)]
+  (let [br        (browserify)
+        context   (assoc context :browserify br)
+        context   (reduce add-widget context body)]
 
     (br.add (path.resolve (path.join
       (path.dirname (require.resolve "wisp")) "engine" "browser.js")))
     (br.require (require.resolve "./client.wisp") { :expose "client" })
-    (each templates (fn [t] (br.require (template.resolve t) { :expose t })))
     (br.transform (require "wispify"))
     (br.transform (require "./bladeify.js"))
 
     (add-routes context
 
-      (route
-        options.pattern
-        (fn [request response]
-          (let [method    request.method
-                parsed    (url.parse request.url true) ; parse query string too
-                url-path  parsed.path
-                url-query parsed.query
-                widget-id (aget url-query "widget")]
-            (if widget-id
-              (respond-widget request response context widget-id)
-              (respond-page   request response body)))))
+      (route options.pattern (serve-page context body))
 
       (route
         (str options.pattern "style")
