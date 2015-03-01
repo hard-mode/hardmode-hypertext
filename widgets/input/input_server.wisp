@@ -2,7 +2,7 @@
   (:require
     [hardmode-ui-hypertext.widget :refer [widget]]))
 
-(defn input [id options]
+(defn input [id & options]
   (widget __dirname id options))
 
 (set! module.exports input)

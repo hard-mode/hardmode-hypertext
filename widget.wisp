@@ -1,19 +1,20 @@
 (ns hardmode-ui-hypertext.widget
   (:require
     [hardmode-ui-hypertext.template :as template]
-    [mori         :refer [assoc conj hash-map partial to-clj vector]]
+    [mori         :refer [assoc conj hash-map merge partial to-clj vector]]
     [path]
-    [wisp.runtime :refer [or]]))
+    [wisp.runtime :refer [or =]]))
 
 (defn widget [widget-dir id options]
   (let [widget-name (path.basename widget-dir)]
-    (hash-map
-      :name     widget-name
-      :dir      widget-dir
-      :template (path.join widget-dir (str widget-name ".blade"))
-      :script   (path.join widget-dir (str widget-name "_client.wisp"))
-      :id       id
-      :options  (to-clj options))))
+    (merge
+      (hash-map
+        :name     widget-name
+        :dir      widget-dir
+        :template (path.join widget-dir (str widget-name ".blade"))
+        :script   (path.join widget-dir (str widget-name "_client.wisp"))
+        :id       id)
+      (apply hash-map options))))
 
 (defn add-widget [context widget]
   (let [c  (partial mori.get context)
