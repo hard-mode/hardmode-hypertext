@@ -1,6 +1,6 @@
 (ns hardmode-ui-hypertext.server
   (:require
-    [hardmode-core.src.core         :refer [execute-body!]]
+    [hardmode-core.util             :refer [execute-body!]]
     [hardmode-ui-hypertext.routing  :refer [route add-routes]]
     [hardmode-ui-hypertext.template :as    template]
     [browserify]
