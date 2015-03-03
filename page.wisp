@@ -42,8 +42,9 @@
         context   (reduce add-widget context body)]
 
     (br.add (path.resolve (path.join
-      (path.dirname (require.resolve "wisp")) "engine" "browser.js")))
-    (br.require (require.resolve "./client.wisp")
+      (path.dirname (require.resolve "wisp/runtime"))
+      "engine" "browser.js")))
+    (br.require (path.join __dirname "client.wisp")
       { :expose "client" })
     (br.transform (require "wispify"))
     (br.transform (require "stylify"))
