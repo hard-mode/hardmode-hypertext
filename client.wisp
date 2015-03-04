@@ -11,9 +11,9 @@
     (console.log "Initializing" widget-opts)
     (let [script (require (:script widget-opts))]
       (console.log script)
-      (if script.init
-        (script.init! widget-opts)
-        (init-widget! widget-opts))))))
+      (set! (aget window.HARDMODE.widgets (:id widget-opts))
+            (if script.init (script.init! widget-opts)
+                            (init-widget! widget-opts)))))))
 
 (defn init-widget! [widget-opts]
   (let [script   (require (:script widget-opts))
