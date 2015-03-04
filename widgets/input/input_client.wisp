@@ -1,3 +1,5 @@
-(ns hardmode-ui-hypertext.widgets.input.client)
+(ns hardmode-ui-hypertext.widgets.input.client
+  (:require [client :refer [init-widget!]]))
 
-(set! module.exports false)
+(defn template [context]
+  ($ "input" { :type "text" :id context.id }))

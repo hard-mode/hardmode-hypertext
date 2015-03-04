@@ -1,5 +1,6 @@
 (ns hardmode-ui-hypertext.widgets.list-view.client
-  (:require [client :refer [init-widget!]]))
+  (:require [client        :refer [init-widget!]]
+            [virtual-dom.h :as    $]))
 
-(set! module.exports false)
-
+(defn template [options]
+  ($ "ol" { :id options.id }))

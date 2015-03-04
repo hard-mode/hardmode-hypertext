@@ -14,7 +14,6 @@
       (hash-map
         :name     w-name
         :dir      w-dir
-        :template (if-exists (w-path ".blade"))
         :script   (if-exists (w-path "_client.wisp"))
         :style    (if-exists (w-path ".styl"))
         :id       id)
@@ -24,9 +23,8 @@
   (let [c  (partial mori.get context)
         w  (partial mori.get widget)
         br (c "browserify")]
-    (if (w "template") (br.require (w "template")))
-    (if (w "script")   (br.require (w "script")))
-    (if (w "style")    (br.require (w "style")))
+    (if (w "script") (br.require (w "script")))
+    (if (w "style")  (br.require (w "style")))
     (assoc context :widgets
       (assoc (or (c "widgets") (hash-map)) (w "id") widget))))
 

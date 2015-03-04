@@ -18,6 +18,7 @@
           url-path (aget (url.parse request.url) "pathname")
           match    (fn [route] (= url-path (mori.get route "pattern")))
           route    (first (filter match routes))]
+      (console.log "Requested" url-path)
       (if route
         ((mori.get route "handler") request response)
         (send-error request response { "body" (Error. "404") })))))

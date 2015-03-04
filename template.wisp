@@ -1,6 +1,5 @@
 (ns hardmode-ui-hypertext.template
   (:require
-    [blade]
     [fs]
     [jade]
     [mori]
@@ -18,6 +17,3 @@
           (if (fs.exists-sync fullpath) fullpath
             (throw (Error. (str "Could not find template "
                                 template)))))))))
-
-(defn render [template options callback]
-  (blade.renderFile (resolve template) options callback))
