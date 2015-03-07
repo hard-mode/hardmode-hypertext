@@ -7,7 +7,6 @@
     [wisp.runtime :refer [or not nil? =]]))
 
 (defn widget [w-dir id options]
-  (console.log (apply hash-map options))
   (let [options   (apply hash-map options)
         o         (partial mori.get options)
 
