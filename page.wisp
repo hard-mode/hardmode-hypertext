@@ -14,7 +14,7 @@
     [wisp.runtime                   :refer [str]]))
 
 (defn page [options & body] (fn [context]
-  (let [br        (browserify)
+  (let [br        (browserify { :debug false }) ; TODO fix source maps
         context   (assoc context :browserify br)
         context   (reduce add-widget context body)]
 

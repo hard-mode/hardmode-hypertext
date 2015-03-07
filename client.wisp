@@ -1,16 +1,20 @@
 (ns hardmode-ui-hypertext.client
   (:require [insert-css]
-            [virtual-dom.create-element :as create-element]))
+            [observ                     :as observer]
+            [observ.watch               :as watch-value!]
+            [virtual-dom.create-element :as create-element]
+            [virtual-dom.diff           :as diff]
+            [virtual-dom.h              :as $]
+            [virtual-dom.patch          :as patch]))
 
 (set! window.HARDMODE         (or window.HARDMODE         {}))
 (set! window.HARDMODE.widgets (or window.HARDMODE.widgets {}))
 
 (defn init-widgets! [& widgets]
-  (console.log widgets)
+  (console.log "Initializing a bunch of widgets:" widgets)
   (widgets.map (fn [widget]
-    (console.log "Initializing" widget)
+    (console.log "Initializing widget:" widget)
     (let [script (require (:script widget))]
-      (console.log script)
       (set! (aget window.HARDMODE.widgets (:id widget))
             (if script.init (script.init! widget)
                             (init-widget! widget)))))))
@@ -22,11 +26,23 @@
 
     (if style (insert-css style))
 
-    (if template
-      (let [rendered (template widget)
-            element  (create-element rendered)]
-        (document.body.appendChild element)
-        (set! (aget widget "element") element)
-        (console.log element)))
+    (let [state (observer (:initial widget))]
+      (set! (aget widget "state") state)
+      (watch-value! state (get-updater widget)))
 
     widget))
+
+(defn get-updater [widget]
+  (fn update-widget! [state]
+    (let [element   (:element widget)
+          template  (:template (require (:script widget)))
+          new-vtree (template widget state)]
+      (if element
+        (let [old-vtree (:vtree widget)
+              patches   (diff old-vtree new-vtree)]
+          (patch element patches))
+        (let [element   (create-element! new-vtree)]
+          (console.log element)
+          (set! (aget widget "vtree")   new-vtree)
+          (set! (aget widget "element") element)
+          (document.body.appendChild element))))))

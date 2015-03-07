@@ -1,28 +1,19 @@
 (ns hardmode-ui-hypertext.widgets.list-view.client
   (:require [client                     :refer [init-widget!]]
-            [observ                     :as    observer]
-            [observ.watch               :as    observe]
             [virtual-dom.create-element :as    create-element]
-            [virtual-dom.h              :as    $]))
+            [virtual-dom.diff           :as    diff]
+            [virtual-dom.h              :as    $]
+            [virtual-dom.patch          :as    patch]))
 
-(defn init! [widget]
-  (set! (aget widget "value") (observer (:value widget)))
-  (init-widget! widget)
-  (observe widget.value (get-updater widget))
-  widget)
-
-(defn template [widget]
-  (let [values      ((:value widget))
+(defn template [widget state]
+  (let [values      (:value state)
         list-items  (if values (values.map (fn [value]
                       ((require (:item-template widget)) value)) []))]
     ($ "ul" { :id widget.id } list-items)))
 
-(defn get-updater [widget]
-  (fn update! [value]
-    (let [old-element (:element widget)
-          new-element (create-element (template widget))]
-      (set! (aget widget "element") new-element)
-      (old-element.parentElement.replaceChild new-element old-element))))
+;(defn get-updater [widget]
+  ;(fn update! [value]
+    ;(update-widget! value)))
 
     ;((:element widget))
     ;(if value (console.log "UPDATED" value))))
