@@ -7,25 +7,26 @@
 
 (defn init-widgets! [& widgets]
   (console.log widgets)
-  (widgets.map (fn [widget-opts]
-    (console.log "Initializing" widget-opts)
-    (let [script (require (:script widget-opts))]
+  (widgets.map (fn [widget]
+    (console.log "Initializing" widget)
+    (let [script (require (:script widget))]
       (console.log script)
-      (set! (aget window.HARDMODE.widgets (:id widget-opts))
-            (if script.init (script.init! widget-opts)
-                            (init-widget! widget-opts)))))))
+      (set! (aget window.HARDMODE.widgets (:id widget))
+            (if script.init (script.init! widget)
+                            (init-widget! widget)))))))
 
-(defn init-widget! [widget-opts]
-  (let [script   (require (:script widget-opts))
-        style    (require (:style  widget-opts))
+(defn init-widget! [widget]
+  (let [script   (require (:script widget))
+        style    (require (:style  widget))
         template script.template]
 
     (if style (insert-css style))
 
     (if template
-      (let [rendered (template widget-opts)
+      (let [rendered (template widget)
             element  (create-element rendered)]
         (document.body.appendChild element)
-        (set! (aget widget-opts "element") element)))
+        (set! (aget widget "element") element)
+        (console.log element)))
 
-    widget-opts))
+    widget))
