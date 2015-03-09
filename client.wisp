@@ -31,8 +31,8 @@
   (set! (aget widget "template")
     (if (:template widget)
       (require (:template widget))
-      (if (and (:script widget) (:template (:script widget)))
-        (:template (:script widget)))))
+      (if (and (:script widget) (:template (require (:script widget))))
+        (:template (require (:script widget))))))
 
   (let [state (observer (:initial widget))]
     (set! (aget widget "state") state)
