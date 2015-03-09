@@ -18,8 +18,8 @@
   (widgets.map (fn [widget]
     (console.log "Initializing widget:" widget)
     (set! (aget window.HARDMODE.widgets (:id widget))
-      (if (and (:script widget) (.-init! (:script widget)))
-        (.init! (:script widget) widget)
+      (if (and (:script widget) (.-init! (require (:script widget))))
+        (.init! (require (:script widget)) widget)
         (init-widget! widget))))))
 
 (def init-application! init-widgets!)

@@ -147,6 +147,7 @@
                             :requires requires)]
     (merge defaults options)))
 
+; TODO :) add widgets to page not context
 (defn add-widget!
   " Add a widget to the context and register it with Browserify. "
   [context widget]
