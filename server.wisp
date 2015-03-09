@@ -99,7 +99,6 @@
 (defn serve-page [context body]
   " Return a function that serves a rendered page. "
   (fn [request response]
-    (console.log (mori.get context "widgets"))
     (send-html request response (str
       "<!doctype html>"
       (.-outerHTML (page-template body))))))
