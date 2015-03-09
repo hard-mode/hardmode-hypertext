@@ -4,9 +4,9 @@
     [fs]
     [http]
     [hyperscript        :as $]
-    [mori               :refer [hash-map assoc dissoc merge
+    [mori               :refer [hash-map assoc dissoc merge set into
                                 vector first get-in conj partial
-                                filter each to-clj to-js is-vector]]
+                                filter map each to-clj to-js is-vector]]
     [path]
     [send-data]
     [send-data.json     :as    send-json]
@@ -146,6 +146,17 @@
                             :style    style
                             :requires requires)]
     (merge defaults options)))
+
+(defn widget-container
+  " A widget which can contain other widgets. "
+  [w-dir id options body]
+  (let [widget (widget w-dir "" options)
+        body   (to-clj body)
+        add-to (fn [acc wid] (into acc (mori.get wid "requires")))
+        deps   (mori.reduce add-to (set) body)]
+    (assoc widget
+      :body     (into (vector) (map (fn [member] (dissoc member "requires")) body))
+      :requires (into (or (mori.get widget "requires") (vector)) deps))))
 
 ; TODO :) add widgets to page not context
 (defn add-widget!
