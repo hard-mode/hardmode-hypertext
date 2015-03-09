@@ -7,7 +7,8 @@
             [virtual-dom.create-element :as create-element]
             [virtual-dom.diff           :as diff]
             [virtual-dom.h              :as $]
-            [virtual-dom.patch          :as patch]))
+            [virtual-dom.patch          :as patch]
+            [wisp.runtime               :refer [and]]))
 
 (set! window.HARDMODE         (or window.HARDMODE         {}))
 (set! window.HARDMODE.widgets (or window.HARDMODE.widgets {}))
@@ -16,16 +17,22 @@
   (console.log "Initializing a bunch of widgets:" widgets)
   (widgets.map (fn [widget]
     (console.log "Initializing widget:" widget)
-    (let [script (require (:script widget))]
-      (set! (aget window.HARDMODE.widgets (:id widget))
-            (if script.init (script.init! widget)
-                            (init-widget! widget)))))))
+    (set! (aget window.HARDMODE.widgets (:id widget))
+      (if (and (:script widget) (.-init! (:script widget)))
+        (.init! (:script widget) widget)
+        (init-widget! widget))))))
 
 (def init-application! init-widgets!)
 
 (defn init-widget! [widget]
-  (let [style (require (:style widget))]
-    (if style (insert-css style)))
+  (if (:style widget)
+    (insert-css (:style widget)))
+
+  (set! (aget widget "template")
+    (if (:template widget)
+      (require (:template widget))
+      (if (and (:script widget) (:template (:script widget)))
+        (:template (:script widget)))))
 
   (let [state (observer (:initial widget))]
     (set! (aget widget "state") state)
@@ -41,7 +48,7 @@
 
 (defn get-updater [widget]
   (fn update-widget! [state]
-    (let [template (:template (require (:script widget)))]
+    (let [template (:template widget)]
       (if template
         (let [element   (:element widget)
               new-vtree (template widget state)]

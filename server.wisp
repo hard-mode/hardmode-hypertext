@@ -19,7 +19,7 @@
     [wisp.sequence      :refer [reduce]]))
 
 (defn server
-  " Create and launch a HTTP server.
+  " Create and launch an HTTP server.
     Use this to get a GUI in your browser. "
   [port & body]
   (fn [context]
