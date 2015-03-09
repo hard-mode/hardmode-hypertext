@@ -1,6 +1,6 @@
 (ns hardmode-ui-hypertext.widgets.button.server
   (:require
-    [hardmode-ui-hypertext.widget :refer [widget]]))
+    [hardmode-ui-hypertext.server :refer [widget]]))
 
 (defn button [id & options]
   (widget __dirname id options))

@@ -1,6 +1,6 @@
 (ns hardmode-ui-hypertext.widgets.list-view.server
   (:require
-    [hardmode-ui-hypertext.widget :refer [widget]]
+    [hardmode-ui-hypertext.server :refer [widget]]
     [mori                         :refer [assoc conj]]))
 
 (defn list-view [id & options]

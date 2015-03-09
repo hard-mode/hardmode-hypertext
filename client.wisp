@@ -21,6 +21,8 @@
             (if script.init (script.init! widget)
                             (init-widget! widget)))))))
 
+(def init-application! init-widgets!)
+
 (defn init-widget! [widget]
   (let [style (require (:style widget))]
     (if style (insert-css style)))
