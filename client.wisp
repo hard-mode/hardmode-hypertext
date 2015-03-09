@@ -26,7 +26,7 @@
 
 (defn init-widget! [widget]
   (if (:style widget)
-    (insert-css (:style widget)))
+    (insert-css (require (:style widget))))
 
   (set! (aget widget "template")
     (if (:template widget)
