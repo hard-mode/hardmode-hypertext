@@ -13,6 +13,11 @@
 (set! window.HARDMODE         (or window.HARDMODE         {}))
 (set! window.HARDMODE.widgets (or window.HARDMODE.widgets {}))
 
+(defn init-application! [& widgets]
+  (let [widgets (apply init-widgets! widgets)]
+    (widgets.map (fn [widget]
+      (if (:element widget) (document.body.appendChild (:element widget)))))))
+
 (defn init-widgets! [& widgets]
   (console.log "Initializing a bunch of widgets:" widgets)
   (widgets.map (fn [widget]
@@ -21,8 +26,6 @@
       (if (and (:script widget) (.-init! (require (:script widget))))
         (.init! (require (:script widget)) widget)
         (init-widget! widget))))))
-
-(def init-application! init-widgets!)
 
 (defn init-widget! [widget]
   (if (:style widget)
@@ -51,13 +54,9 @@
     (let [template (:template widget)]
       (if template
         (let [element   (:element widget)
+              old-vtree (:vtree   widget)
               new-vtree (template widget state)]
-          (if element
-            (let [old-vtree (:vtree widget)
-                  patches   (diff old-vtree new-vtree)]
-              (set! (aget widget "vtree")   new-vtree)
-              (set! (aget widget "element") (patch element patches)))
-            (let [element   (create-element! new-vtree)]
-              (set! (aget widget "vtree")   new-vtree)
-              (set! (aget widget "element") element)
-              (document.body.appendChild    element))))))))
+          (set! (aget widget "vtree")   new-vtree)
+          (set! (aget widget "element") (if element
+            (patch element (diff old-vtree new-vtree))
+            (create-element! new-vtree))))))))
