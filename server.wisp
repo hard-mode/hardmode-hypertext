@@ -1,6 +1,6 @@
 (ns hardmode-ui-hypertext.server
   (:require
-    [hardmode-core.util :refer [assert execute-body!]]
+    [hardmode-core.util :refer [execute-body!]]
     [browserify]
     [fs]
     [http]
@@ -18,10 +18,36 @@
     [wisp.runtime       :refer [= str or not nil?]]
     [wisp.sequence      :refer [reduce]]))
 
-; TODO fix source maps
-; TODO use remapify or similar for shorter require paths
+(defn server
+  " Create and launch a HTTP server.
+    Use this to get a GUI in your browser. "
+  [port & body]
+  (fn [context]
+    (let [server  (http.createServer)
+          context (assoc context :server server)]
+      (console.log "Listening on" port)
+      (server.listen port)
+      (let [new-context (apply execute-body! context body)]
+        (server.on "request" (get-request-handler new-context))
+        new-context))))
+
+(defn route [pattern handler]
+  " A route is an URL pattern with a handler function. "
+  (hash-map :pattern pattern
+            :handler handler))
+
+(defn add-route [context new-route]
+  " Add a route to context.routes, creating it if missing. "
+  (let [routes (or (mori.get context "routes") (vector))]
+    (assoc context :routes (conj routes new-route))))
+
+(defn add-routes [context & routes]
+  " Convenience function for adding multiple routes. "
+  (reduce add-route context routes))
 
 (defn get-request-handler [context]
+  " Return a function which finds the correct route
+    for the requested URL and writes an HTTP response. "
   (fn request-handler [request response]
     (let [routes   (mori.get context "routes")
           url-path (aget (url.parse request.url) "pathname")
@@ -32,63 +58,56 @@
         ((mori.get route "handler") request response)
         (send-error request response { "body" (Error. "404") })))))
 
-(defn server [port & body]
+; TODO :) allow for more than one page
+; TODO :/ fix source maps
+; TODO :/ use remapify or similar for shorter require paths
+(defn page [options & body]
+  " Return a function adding an UI view ('page') to the context.
+    A page contains one or more named widgets, and uses
+    Browserify to serve their dependencies as a single bundle. "
   (fn [context]
-    (let [server  (http.createServer)
-          context (assoc context :server server)]
-      (console.log "Listening on" port)
-      (server.listen port)
-      (let [new-context (apply execute-body! context body)]
-        (server.on "request" (get-request-handler new-context))
-        new-context))))
+    (let [br        (browserify { :debug      false
+                                  :extensions [ ".wisp" ] })
+          context   (assoc context :browserify br)
+          context   (reduce add-widget! context body)]
 
-(defn page [options & body] (fn [context]
-  (let [br        (browserify { :debug      false
-                                :extensions [ ".wisp" ] })
-        context   (assoc context :browserify br)
-        context   (reduce add-widget! context body)]
+      (br.add (path.resolve (path.join
+        (path.dirname (require.resolve "wisp/runtime"))
+        "engine" "browser.js")))
+      (br.require (path.join __dirname "client.wisp") { :expose "client" })
+      (br.transform (require "wispify") { :global true })
+      (br.transform (require "stylify") { :global true })
 
-    (br.add (path.resolve (path.join
-      (path.dirname (require.resolve "wisp/runtime"))
-      "engine" "browser.js")))
-    (br.require (path.join __dirname "client.wisp") { :expose "client" })
-    (br.transform (require "wispify") { :global true })
-    (br.transform (require "stylify") { :global true })
+      (add-routes context
 
-    (add-routes context
+        (route
+          options.pattern
+          (serve-page context body))
 
-      (route options.pattern (serve-page context body))
+        (route
+          (str options.pattern "style")
+          (fn [request response]
+            (send-data request response "body { background: #333; color: #fff }")))
 
-      (route
-        (str options.pattern "style")
-        (fn [request response]
-          (send-data request response "body { background: #333; color: #fff }")))
-
-      (route
-        (str options.pattern "script")
-        (fn [request response]
-          (br.bundle (fn [error bundled]
-            (if error (throw error))
-            (send-data request response (bundled.toString "utf8"))))))))))
+        (route
+          (str options.pattern "script")
+          (fn [request response]
+            (br.bundle (fn [error bundled]
+              (if error (throw error))
+              (send-data request response (bundled.toString "utf8"))))))))))
 
 (defn serve-page [context body]
+  " Return a function that serves a rendered page. "
   (fn [request response]
-    (let [method    request.method
-          parsed    (url.parse request.url true) ; parse query string too
-          url-path  parsed.path
-          url-query parsed.query
-          widget-id (aget url-query "widget")]
-      (if widget-id
-        (respond-component request response context widget-id)
-        (respond-page      request response context body)))))
+    (console.log (mori.get context "widgets"))
+    (send-html request response (str
+      "<!doctype html>"
+      (.-outerHTML (page-template body))))))
 
-(defn respond-page [request response context body]
-  (console.log (mori.get context "widgets"))
-  (send-html request response (str
-    "<!doctype html>"
-    (.-outerHTML (page-template body)))))
-
-(defn page-template [body]
+; TODO allow for specifying a custom title
+(defn page-template
+  " Generic HTML page template. "
+  [body]
   ($ "html" [
     ($ "head" [
       ($ "meta" { :charset "utf-8" })
@@ -98,28 +117,17 @@
       ($ "script" { :src "/script" })
       ($ "script" { :type "application/wisp" } (get-init-script body))])]))
 
-(defn get-init-script [body]
+(defn get-init-script
+  " Generate the function call which bootstraps widgets into existence. "
+  [body]
   (str
     "\n(.init-application! (require \"client\")"
     (reduce (fn [acc wid] (str acc "\n  " wid)) "" body)
     ")"))
 
-(defn respond-component [request response context widget-id]
-  (send-json request response (to-js
-    (get-in context (mori.vector "widgets" widget-id) {}))))
-
-(defn route [pattern handler]
-  (hash-map :pattern pattern
-            :handler handler))
-
-(defn add-route [context new-route]
-  (let [routes (or (mori.get context "routes") (vector))]
-    (assoc context :routes (conj routes new-route))))
-
-(defn add-routes [context & routes]
-  (reduce add-route context routes))
-
-(defn widget [w-dir id options]
+(defn widget
+  " A standalone GUI control. "
+  [w-dir id options]
   (let [options   (apply hash-map options)
         o         (partial mori.get options)
 
@@ -139,7 +147,9 @@
                             :requires requires)]
     (merge defaults options)))
 
-(defn add-widget! [context widget]
+(defn add-widget!
+  " Add a widget to the context and register it with Browserify. "
+  [context widget]
   (let [c  (partial mori.get context)
         w  (partial mori.get widget)
         br (c "browserify")]
@@ -149,6 +159,7 @@
         (w "id") (dissoc widget "requires" "dir")))))
 
 (defn add-widgets [context & widgets]
+  " Convenience function for adding multiple widgets. "
   (reduce add-widget context widgets))
 
 ; manually require and export everything in ./widgets
