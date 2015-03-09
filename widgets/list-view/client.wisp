@@ -1,9 +1,9 @@
 (ns hardmode-ui-hypertext.widgets.list-view.client
   (:require [client                     :refer [init-widget!]]
-            [virtual-dom.create-element :as    create-element]
-            [virtual-dom.diff           :as    diff]
-            [virtual-dom.h              :as    $]
-            [virtual-dom.patch          :as    patch]))
+            [virtual-dom.create-element :as     create-element]
+            [virtual-dom.diff           :as     diff]
+            [virtual-dom.h              :as     $]
+            [virtual-dom.patch          :as     patch]))
 
 (defn template [widget state]
   (let [values      (:value state)

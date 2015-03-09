@@ -11,11 +11,11 @@
         o         (partial mori.get options)
 
         w-name    (path.basename w-dir)
-        w-rel     (fn [suffix]  (path.join w-dir (str w-name suffix)))
+        w-rel     (fn [filename] (path.join w-dir filename))
 
         if-exists (fn [filename] (if (fs.existsSync filename) filename nil))
-        script    (or (o "script") (if-exists (w-rel "_client.wisp")))
-        style     (or (o "style")  (if-exists (w-rel ".styl")))
+        script    (or (o "script") (if-exists (w-rel "client.wisp")))
+        style     (or (o "style")  (if-exists (w-rel "style.styl")))
         requires  [script style]
         requires  (apply vector (requires.filter (fn [v] (not (nil? v)))))
         defaults  (hash-map :widget   w-name
@@ -26,7 +26,7 @@
                             :requires requires)]
     (merge defaults options)))
 
-(defn add-widget [context widget]
+(defn add-widget! [context widget]
   (let [c  (partial mori.get context)
         w  (partial mori.get widget)
         br (c "browserify")]

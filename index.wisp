@@ -17,7 +17,7 @@
 (let [rel       (partial path.join __dirname "widgets")
       is-dir?   (fn [dir] (.isDirectory (fs.statSync (rel dir))))
       dirs      (.filter (fs.readdirSync (rel "")) is-dir?)
-      fullpath  (fn [wid] (path.resolve (rel wid (str wid "_server.wisp"))))
+      fullpath  (fn [wid] (path.resolve (rel wid "server.wisp")))
       widgets   {}
       exporter  (fn [wid] (let [widget-module (require (fullpath wid))
                                 widget-name   widget-module.name]

@@ -2,7 +2,7 @@
   (:require
     [browserify]
     [hardmode-ui-hypertext.routing  :refer [route add-routes]]
-    [hardmode-ui-hypertext.widget   :refer [add-widget]]
+    [hardmode-ui-hypertext.widget   :refer [add-widget!]]
     [hyperscript                    :as $]
     [mori                           :refer [assoc each reduce get-in to-js]]
     [path]
@@ -14,17 +14,17 @@
     [wisp.runtime                   :refer [str]]))
 
 (defn page [options & body] (fn [context]
-  (let [br        (browserify { :debug false }) ; TODO fix source maps
+  (let [br        (browserify { :debug      false ; TODO fix source maps
+                                :extensions [ ".wisp" ] })
         context   (assoc context :browserify br)
         context   (reduce add-widget context body)]
 
     (br.add (path.resolve (path.join
       (path.dirname (require.resolve "wisp/runtime"))
       "engine" "browser.js")))
-    (br.require (path.join __dirname "client.wisp")
-      { :expose "client" })
-    (br.transform (require "wispify"))
-    (br.transform (require "stylify"))
+    (br.require (path.join __dirname "client.wisp") { :expose "client" })
+    (br.transform (require "wispify") { :global true })
+    (br.transform (require "stylify") { :global true })
 
     (add-routes context
 
