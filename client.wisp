@@ -40,9 +40,9 @@
       (if element
         (let [old-vtree (:vtree widget)
               patches   (diff old-vtree new-vtree)]
-          (patch element patches))
+          (set! (aget widget "vtree")   new-vtree)
+          (set! (aget widget "element") (patch element patches)))
         (let [element   (create-element! new-vtree)]
-          (console.log element)
           (set! (aget widget "vtree")   new-vtree)
           (set! (aget widget "element") element)
-          (document.body.appendChild element))))))
+          (document.body.appendChild    element))))))
