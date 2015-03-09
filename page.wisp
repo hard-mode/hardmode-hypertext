@@ -13,8 +13,11 @@
     [util]
     [wisp.runtime                   :refer [str]]))
 
+; TODO fix source maps
+; TODO use remapify or similar for shorter require paths
+
 (defn page [options & body] (fn [context]
-  (let [br        (browserify { :debug      false ; TODO fix source maps
+  (let [br        (browserify { :debug      false
                                 :extensions [ ".wisp" ] })
         context   (assoc context :browserify br)
         context   (reduce add-widget context body)]

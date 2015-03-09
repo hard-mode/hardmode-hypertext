@@ -12,6 +12,8 @@
     "browserify": "^8.1.3",
     "escodegen": "^1.6.1",
     "esprima": "^2.0.0",
+    "event-sinks": "^2.2.0",
+    "html-delegator": "^1.0.1",
     "hyperscript": "^1.4.4",
     "insert-css": "^0.2.0",
     "jade": "^1.9.2",

@@ -1,5 +1,7 @@
 (ns hardmode-ui-hypertext.client
-  (:require [insert-css]
+  (:require [event-sinks]
+            [html-delegator]
+            [insert-css]
             [observ                     :as observer]
             [observ.watch               :as watch-value!]
             [virtual-dom.create-element :as create-element]
@@ -20,29 +22,33 @@
                             (init-widget! widget)))))))
 
 (defn init-widget! [widget]
-  (let [script   (require (:script widget))
-        style    (require (:style  widget))
-        template script.template]
+  (let [style (require (:style widget))]
+    (if style (insert-css style)))
 
-    (if style (insert-css style))
+  (let [state (observer (:initial widget))]
+    (set! (aget widget "state") state)
+    (watch-value! state (get-updater widget)))
 
-    (let [state (observer (:initial widget))]
-      (set! (aget widget "state") state)
-      (watch-value! state (get-updater widget)))
+  (let [delegator (html-delegator)
+        sinks     (event-sinks [])
+        events    { :delegator delegator
+                    :sinks     sinks }]
+    (set! (aget widget "events") events))
 
-    widget))
+  widget)
 
 (defn get-updater [widget]
   (fn update-widget! [state]
-    (let [element   (:element widget)
-          template  (:template (require (:script widget)))
-          new-vtree (template widget state)]
-      (if element
-        (let [old-vtree (:vtree widget)
-              patches   (diff old-vtree new-vtree)]
-          (set! (aget widget "vtree")   new-vtree)
-          (set! (aget widget "element") (patch element patches)))
-        (let [element   (create-element! new-vtree)]
-          (set! (aget widget "vtree")   new-vtree)
-          (set! (aget widget "element") element)
-          (document.body.appendChild    element))))))
+    (let [template (:template (require (:script widget)))]
+      (if template
+          (let [element   (:element widget)
+                new-vtree (template widget state)]
+            (if element
+              (let [old-vtree (:vtree widget)
+                    patches   (diff old-vtree new-vtree)]
+                (set! (aget widget "vtree")   new-vtree)
+                (set! (aget widget "element") (patch element patches)))
+              (let [element   (create-element! new-vtree)]
+                (set! (aget widget "vtree")   new-vtree)
+                (set! (aget widget "element") element)
+                (document.body.appendChild    element))))))))
