@@ -1,13 +1,12 @@
 (ns hardmode-ui-hypertext.server
   (:require
-    [hardmode-core.util :refer [execute-body!]]
     [browserify]
     [fs]
     [http]
     [hyperscript        :as $]
     [mori               :refer [hash-map assoc dissoc merge
                                 vector first get-in conj partial
-                                reduce filter each to-clj to-js is-vector]]
+                                filter each to-clj to-js is-vector]]
     [path]
     [send-data]
     [send-data.json     :as    send-json]
@@ -27,7 +26,8 @@
           context (assoc context :server server)]
       (console.log "Listening on" port)
       (server.listen port)
-      (let [new-context (apply execute-body! context body)]
+      (let [new-context (reduce (fn [context member] (member context))
+                                (hash-map) body)]
         (server.on "request" (get-request-handler new-context))
         new-context))))
 
@@ -82,7 +82,7 @@
 
         (route
           options.pattern
-          (serve-page context body))
+          (serve-page context))
 
         (route
           (str options.pattern "style")
@@ -101,12 +101,12 @@
   (fn [request response]
     (send-html request response (str
       "<!doctype html>"
-      (.-outerHTML (page-template body))))))
+      (.-outerHTML (page-template context))))))
 
 ; TODO allow for specifying a custom title
 (defn page-template
   " Generic HTML page template. "
-  [body]
+  [context]
   ($ "html" [
     ($ "head" [
       ($ "meta" { :charset "utf-8" })
@@ -114,15 +114,16 @@
       ($ "link" { :rel "stylesheet" :href "/style" })])
     ($ "body" [
       ($ "script" { :src "/script" })
-      ($ "script" { :type "application/wisp" } (get-init-script body))])]))
+      ($ "script" { :type "application/wisp" } (get-init-script context))])]))
 
 (defn get-init-script
   " Generate the function call which bootstraps widgets into existence. "
-  [body]
-  (str
-    "\n(.init-application! (require \"client\")"
-    (reduce (fn [acc wid] (str acc "\n  " wid)) "" body)
-    ")"))
+  [context]
+  (let [add-widget-initializer (fn [acc wid] (str acc "\n  " wid))]
+    (str
+      "\n(.init-application! (require \"client\")"
+      (mori.reduce add-widget-initializer "" (mori.get context "widgets"))
+      ")")))
 
 (defn widget
   " A standalone GUI control. "
@@ -154,8 +155,8 @@
         br (c "browserify")]
     (mori.each (w "requires") (fn [file] (br.require file)))
     (assoc context :widgets
-      (assoc (or (c "widgets") (hash-map))
-        (w "id") (dissoc widget "requires" "dir")))))
+      (conj (or (c "widgets") (vector))
+        (dissoc widget "requires" "dir")))))
 
 (defn add-widgets [context & widgets]
   " Convenience function for adding multiple widgets. "
