@@ -126,14 +126,11 @@
       ")")))
 
 (defn widget
-  " A standalone GUI control. "
+  " A standalone GUI control. Expects options to be a Mori hash-map. "
   [w-dir id options]
-  (let [options   (apply hash-map options)
-        o         (partial mori.get options)
-
+  (let [o         (partial mori.get options)
         w-name    (path.basename w-dir)
         w-rel     (fn [filename] (path.join w-dir filename))
-
         if-exists (fn [filename] (if (fs.existsSync filename) filename nil))
         script    (or (o "script") (if-exists (w-rel "client.wisp")))
         style     (or (o "style")  (if-exists (w-rel "style.styl")))
@@ -141,7 +138,7 @@
         requires  (apply vector (requires.filter (fn [v] (not (nil? v)))))
         defaults  (hash-map :widget   w-name
                             :id       id
-                            :dir      w-dir
+                            :path     w-dir
                             :script   script
                             :style    style
                             :requires requires)]
@@ -150,7 +147,7 @@
 (defn widget-container
   " A widget which can contain other widgets. "
   [w-dir id options body]
-  (let [widget (widget w-dir "" options)
+  (let [widget (widget w-dir id options)
         body   (to-clj body)
         add-to (fn [acc wid] (into acc (mori.get wid "requires")))
         deps   (mori.reduce add-to (set) body)]
