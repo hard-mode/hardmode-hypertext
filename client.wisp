@@ -1,6 +1,7 @@
 (ns hardmode-ui-hypertext.client
-  (:require [event-sinks]
-            [html-delegator]
+  (:require [dom-delegator]
+            ;[event-sinks]
+            ;[html-delegator]
             [insert-css]
             [observ                     :as observer]
             [observ.watch               :as watch-value!]
@@ -10,10 +11,10 @@
             [virtual-dom.patch          :as patch]
             [wisp.runtime               :refer [and]]))
 
-(set! window.HARDMODE         (or window.HARDMODE         {}))
-(set! window.HARDMODE.widgets (or window.HARDMODE.widgets {}))
-
 (defn init-application! [& widgets]
+  (set! window.HARDMODE         {})
+  (set! window.HARDMODE.widgets {})
+  (set! window.HARDMODE.events  (dom-delegator))
   (let [widgets (apply init-widgets! widgets)]
     (widgets.map (fn [widget]
       (if (:element widget) (document.body.appendChild (:element widget)))))))
@@ -41,11 +42,11 @@
     (set! (aget widget "state") state)
     (watch-value! state (get-updater widget)))
 
-  (let [delegator (html-delegator)
-        sinks     (event-sinks [])
-        events    { :delegator delegator
-                    :sinks     sinks }]
-    (set! (aget widget "events") events))
+  ;(let [delegator (html-delegator)
+        ;sinks     (event-sinks [])
+        ;events    { :delegator delegator
+                    ;:sinks     sinks }]
+    ;(set! (aget widget "events") events))
 
   widget)
 
