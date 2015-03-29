@@ -17,8 +17,6 @@
     "html-delegator": "^1.0.1",
     "hyperscript": "^1.4.4",
     "insert-css": "^0.2.0",
-    "jade": "^1.9.2",
-    "jadeify": "^4.0.1",
     "reflux": "^0.2.5",
     "send-data": "^6.0.0",
     "stylify": "^1.1.2",

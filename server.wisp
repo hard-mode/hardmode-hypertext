@@ -23,7 +23,7 @@
   [port & body]
   (fn [context]
     (let [server  (http.createServer)
-          context (assoc context :server server)]
+          context (assoc (or context (hash-map)) :server server)]
       (console.log "Listening on" port)
       (server.listen port)
       (let [new-context (reduce (fn [context member] (member context))
@@ -61,47 +61,32 @@
 ; TODO :) allow for more than one page
 ; TODO :/ fix source maps
 ; TODO :/ use remapify or similar for shorter require paths
-(defn page [options & body]
-  " Return a function adding an UI view ('page') to the context.
-    A page contains one or more named widgets, and uses
-    Browserify to serve their dependencies as a single bundle. "
+
+(defn page [pattern script]
   (fn [context]
-    (let [br        (browserify { :debug      false
-                                  :extensions [ ".wisp" ] })
-          context   (assoc context :browserify br)
-          context   (reduce add-widget! context body)]
+
+    (let [br (browserify { :debug      false
+                           :extensions [ ".wisp" ]})]
 
       (br.add (path.resolve (path.join
-        (path.dirname (require.resolve "wisp/runtime"))
-        "engine" "browser.js")))
+        (path.dirname (require.resolve "wisp/runtime")) "engine" "browser.js")))
       (br.require (path.join __dirname "client.wisp") { :expose "client" })
       (br.transform (require "wispify") { :global true })
       (br.transform (require "stylify") { :global true })
 
       (add-routes context
 
-        (route
-          options.pattern
-          (serve-page context))
-
-        (route
-          (str options.pattern "style")
+        (route pattern
           (fn [request response]
-            (send-data request response "body { background: #333; color: #fff }")))
+            (send-html request response (str
+              "<!doctype html>"
+              (.-outerHTML (page-template context))))))
 
-        (route
-          (str options.pattern "script")
+        (route (str pattern "script")
           (fn [request response]
             (br.bundle (fn [error bundled]
               (if error (throw error))
               (send-data request response (bundled.toString "utf8"))))))))))
-
-(defn serve-page [context body]
-  " Return a function that serves a rendered page. "
-  (fn [request response]
-    (send-html request response (str
-      "<!doctype html>"
-      (.-outerHTML (page-template context))))))
 
 ; TODO allow for specifying a custom title
 (defn page-template
@@ -110,8 +95,7 @@
   ($ "html" [
     ($ "head" [
       ($ "meta" { :charset "utf-8" })
-      ($ "title" "Boepripasi")
-      ($ "link" { :rel "stylesheet" :href "/style" })])
+      ($ "title" "Boepripasi") ])
     ($ "body" [
       ($ "script" { :src "/script" })
       ($ "script" { :type "application/wisp" } (get-init-script context))])]))
